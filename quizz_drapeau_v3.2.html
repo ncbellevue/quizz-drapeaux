@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz des drapeaux du monde</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a2980;
+            --secondary-color: #26d0ce;
+            --bg-color: rgba(255, 255, 255, 0.95);
+            --text-color: #333;
+            --container-bg: rgba(255, 255, 255, 0.95);
+            --flag-bg: #f8f9fa;
+            --input-bg: #fdfdfd;
+            --stat-bg: #f8f9fa;
+            --instructions-bg: #e8f4fc;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --border-color: #eaeaea;
+            --correct-color: #4CAF50;
+            --incorrect-color: #f44336;
+            --button-text: white;
+        }
+
+        .dark-mode {
+            --primary-color: #6c8eff;
+            --secondary-color: #4fd1d1;
+            --bg-color: #121212;
+            --text-color: #f0f0f0;
+            --container-bg: rgba(30, 30, 30, 0.95);
+            --flag-bg: #2d2d2d;
+            --input-bg: #2a2a2a;
+            --stat-bg: #2d2d2d;
+            --instructions-bg: #1e3a5f;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --border-color: #444;
+            --correct-color: #4CAF50;
+            --incorrect-color: #f44336;
+            --button-text: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px var(--shadow-color);
+            max-width: 1000px;
+            width: 100%;
+            overflow: hidden;
+            padding: 30px;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--button-text);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-right: 100px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .flag-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--flag-bg);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flag-image-container {
+            width: 100%;
+            height: 250px;
+            background-color: var(--container-bg);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        #flag-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .flag-placeholder {
+            color: #888;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .progress-text {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .input-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        #country-input {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            transition: all 0.3s;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        #country-input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(38, 208, 206, 0.2);
+            outline: none;
+        }
+
+        #country-input.correct {
+            border-color: var(--correct-color);
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+
+        #country-input.incorrect {
+            border-color: var(--incorrect-color);
+            background-color: rgba(244, 67, 54, 0.05);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            color: var(--button-text);
+        }
+
+        #submit-btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        }
+
+        #submit-btn:hover {
+            background: linear-gradient(to right, #15225e, #1fb5b3);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(26, 41, 128, 0.2);
+        }
+
+        #next-btn {
+            background-color: var(--correct-color);
+        }
+
+        #next-btn:hover {
+            background-color: #3d8b40;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(76, 175, 80, 0.2);
+        }
+
+        #show-answer-btn {
+            background-color: #ff9800;
+        }
+
+        #show-answer-btn:hover {
+            background-color: #e68900;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(255, 152, 0, 0.2);
+        }
+
+        .feedback {
+            min-height: 100px;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s;
+            background-color: var(--flag-bg);
+        }
+
+        .feedback.correct {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 5px solid var(--correct-color);
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left: 5px solid var(--incorrect-color);
+        }
+
+        .feedback-info {
+            background-color: rgba(33, 150, 243, 0.1);
+            border-left: 5px solid #2196F3;
+        }
+
+        #feedback-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        #correct-answer-text {
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-box {
+            background-color: var(--stat-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar-container {
+            margin-top: 30px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+            border-radius: 10px;
+        }
+
+        .instructions {
+            background-color: var(--instructions-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--primary-color);
+            border-left: 5px solid #2196F3;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .country-count {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            background-color: rgba(38, 208, 206, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            button {
+                min-width: 100%;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            header {
+                padding-right: 0;
+            }
+            
+            .theme-toggle {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 0 auto 20px;
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .completed-message {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: var(--flag-bg);
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .completed-message h2 {
+            color: var(--correct-color);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .completed-message p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        #restart-btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            margin: 0 auto;
+            max-width: 300px;
+        }
+
+        .accuracy-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 15px;
+            color: var(--primary-color);
+        }
+
+        .high-accuracy {
+            color: var(--correct-color);
+        }
+
+        .medium-accuracy {
+            color: #ff9800;
+        }
+
+        .low-accuracy {
+            color: var(--incorrect-color);
+        }
+        
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            color: #856404;
+            font-size: 0.95rem;
+        }
+
+        .dark-mode .note {
+            background-color: #5d4c21;
+            border-color: #7a6311;
+            color: #f0e6d2;
+        }
+
+        .remaining-flags {
+            font-size: 1rem;
+            color: var(--text-color);
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="theme-toggle" class="theme-toggle">
+            <i class="fas fa-moon"></i> Mode sombre
+        </button>
+
+        <header>
+            <h1><i class="fas fa-globe-americas"></i> Quiz des drapeaux du monde</h1>
+            <p class="subtitle">Testez vos connaissances sur les drapeaux des pays et territoires du monde. Tapez le nom du pays correspondant au drapeau affiché.</p>
+            <div class="country-count" id="total-flags">194 drapeaux au total</div>
+            <div class="remaining-flags" id="remaining-flags-text">Drapeaux restants dans cette session : 194</div>
+        </header>
+
+        <div class="note">
+            <i class="fas fa-info-circle"></i> <strong>Note :</strong> Chaque drapeau n'apparaît qu'une seule fois par session. Les territoires utilisant le même drapeau que leur pays souverain ont été retirés pour éviter la répétition.
+        </div>
+
+        <div id="game-content">
+            <div class="game-area">
+                <div class="flag-container">
+                    <div class="flag-image-container">
+                        <img id="flag-image" src="" alt="Drapeau à identifier">
+                        <div id="flag-placeholder" class="flag-placeholder">
+                            <i class="fas fa-flag fa-4x" style="color: #ccc; margin-bottom: 15px;"></i>
+                            <p>Chargement du drapeau...</p>
+                        </div>
+                    </div>
+                    <div class="progress-text" id="progress-text">Drapeau 1/194</div>
+                </div>
+
+                <div class="input-container">
+                    <div class="input-group">
+                        <label for="country-input"><i class="fas fa-pencil-alt"></i> Nom du pays/territoire :</label>
+                        <input type="text" id="country-input" placeholder="Entrez le nom du pays ici..." autocomplete="off">
+                    </div>
+
+                    <div class="feedback" id="feedback">
+                        <div id="feedback-text">Entrez votre réponse et cliquez sur "Vérifier"</div>
+                        <div id="correct-answer-text"></div>
+                    </div>
+
+                    <div class="buttons">
+                        <button id="submit-btn">
+                            <i class="fas fa-check-circle"></i> Vérifier
+                        </button>
+                        <button id="next-btn" class="hidden">
+                            <i class="fas fa-arrow-right"></i> Suivant
+                        </button>
+                        <button id="show-answer-btn">
+                            <i class="fas fa-eye"></i> Voir la réponse
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Réponses correctes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="incorrect-count">0</div>
+                    <div class="stat-label">Réponses incorrectes</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="remaining">194</div>
+                    <div class="stat-label">Drapeaux restants</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Précision</div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> Comment jouer :</h3>
+                <ul>
+                    <li>Regardez le drapeau affiché et tapez le nom du pays correspondant.</li>
+                    <li><strong>Conseil :</strong> Les tirets et accents ne sont pas obligatoires (ex: "cap vert" pour "Cap-Vert")</li>
+                    <li>Cliquez sur "Vérifier" pour valider votre réponse.</li>
+                    <li>Si vous ne connaissez pas la réponse, cliquez sur "Voir la réponse".</li>
+                    <li>Après chaque réponse (correcte ou incorrecte), cliquez sur "Suivant" pour passer au drapeau suivant.</li>
+                    <li><strong>Astuce :</strong> Vous pouvez aussi utiliser la touche Entrée pour vérifier votre réponse, puis appuyer à nouveau sur Entrée pour passer à la suivante.</li>
+                    <li><strong>Chaque drapeau n'apparaît qu'une seule fois par session.</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="completed-message" class="completed-message hidden">
+            <h2><i class="fas fa-trophy"></i> Quiz terminé !</h2>
+            <p>Félicitations ! Vous avez terminé le quiz des drapeaux du monde.</p>
+            <p>Score final : <span id="final-score">0</span> réponses correctes sur <span id="final-total">194</span></p>
+            <p>Précision : <span id="final-accuracy">0%</span></p>
+            <p id="final-message"></p>
+            <button id="restart-btn">
+                <i class="fas fa-redo"></i> Recommencer le quiz
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Liste complète initiale des drapeaux
+        const allFlags = [
+            { name: "Afghanistan", image: "https://flagcdn.com/w320/af.png" },
+            { name: "Afrique du Sud", image: "https://flagcdn.com/w320/za.png" },
+            { name: "Åland", image: "https://flagcdn.com/w320/ax.png" },
+            { name: "Albanie", image: "https://flagcdn.com/w320/al.png" },
+            { name: "Algérie", image: "https://flagcdn.com/w320/dz.png" },
+            { name: "Allemagne", image: "https://flagcdn.com/w320/de.png" },
+            { name: "Andorre", image: "https://flagcdn.com/w320/ad.png" },
+            { name: "Angola", image: "https://flagcdn.com/w320/ao.png" },
+            { name: "Anguilla", image: "https://flagcdn.com/w320/ai.png" },
+            { name: "Antarctique", image: "https://flagcdn.com/w320/aq.png" },
+            { name: "Antigua-et-Barbuda", image: "https://flagcdn.com/w320/ag.png" },
+            { name: "Arabie saoudite", image: "https://flagcdn.com/w320/sa.png" },
+            { name: "Argentine", image: "https://flagcdn.com/w320/ar.png" },
+            { name: "Arménie", image: "https://flagcdn.com/w320/am.png" },
+            { name: "Aruba", image: "https://flagcdn.com/w320/aw.png" },
+            { name: "Australie", image: "https://flagcdn.com/w320/au.png" },
+            { name: "Autriche", image: "https://flagcdn.com/w320/at.png" },
+            { name: "Azerbaïdjan", image: "https://flagcdn.com/w320/az.png" },
+            { name: "Bahamas", image: "https://flagcdn.com/w320/bs.png" },
+            { name: "Bahreïn", image: "https://flagcdn.com/w320/bh.png" },
+            { name: "Bangladesh", image: "https://flagcdn.com/w320/bd.png" },
+            { name: "Barbade", image: "https://flagcdn.com/w320/bb.png" },
+            { name: "Belgique", image: "https://flagcdn.com/w320/be.png" },
+            { name: "Belize", image: "https://flagcdn.com/w320/bz.png" },
+            { name: "Bénin", image: "https://flagcdn.com/w320/bj.png" },
+            { name: "Bermudes", image: "https://flagcdn.com/w320/bm.png" },
+            { name: "Bhoutan", image: "https://flagcdn.com/w320/bt.png" },
+            { name: "Biélorussie", image: "https://flagcdn.com/w320/by.png" },
+            { name: "Birmanie", image: "https://flagcdn.com/w320/mm.png" },
+            { name: "Bolivie", image: "https://flagcdn.com/w320/bo.png" },
+            { name: "Bosnie-Herzégovine", image: "https://flagcdn.com/w320/ba.png" },
+            { name: "Botswana", image: "https://flagcdn.com/w320/bw.png" },
+            { name: "Brésil", image: "https://flagcdn.com/w320/br.png" },
+            { name: "Brunei", image: "https://flagcdn.com/w320/bn.png" },
+            { name: "Bulgarie", image: "https://flagcdn.com/w320/bg.png" },
+            { name: "Burkina Faso", image: "https://flagcdn.com/w320/bf.png" },
+            { name: "Burundi", image: "https://flagcdn.com/w320/bi.png" },
+            { name: "Cambodge", image: "https://flagcdn.com/w320/kh.png" },
+            { name: "Cameroun", image: "https://flagcdn.com/w320/cm.png" },
+            { name: "Canada", image: "https://flagcdn.com/w320/ca.png" },
+            { name: "Chili", image: "https://flagcdn.com/w320/cl.png" },
+            { name: "Chine", image: "https://flagcdn.com/w320/cn.png" },
+            { name: "Chypre", image: "https://flagcdn.com/w320/cy.png" },
+            { name: "Vatican", image: "https://flagcdn.com/w320/va.png" },
+            { name: "Colombie", image: "https://flagcdn.com/w320/co.png" },
+            { name: "Comores", image: "https://flagcdn.com/w320/km.png" },
+            { name: "Congo", image: "https://flagcdn.com/w320/cg.png" },
+            { name: "Congo (Rép. dém.)", image: "https://flagcdn.com/w320/cd.png" },
+            { name: "Corée du Nord", image: "https://flagcdn.com/w320/kp.png" },
+            { name: "Corée du Sud", image: "https://flagcdn.com/w320/kr.png" },
+            { name: "Costa Rica", image: "https://flagcdn.com/w320/cr.png" },
+            { name: "Côte d'Ivoire", image: "https://flagcdn.com/w320/ci.png" },
+            { name: "Croatie", image: "https://flagcdn.com/w320/hr.png" },
+            { name: "Cuba", image: "https://flagcdn.com/w320/cu.png" },
+            { name: "Curaçao", image: "https://flagcdn.com/w320/cw.png" },
+            { name: "Danemark", image: "https://flagcdn.com/w320/dk.png" },
+            { name: "Djibouti", image: "https://flagcdn.com/w320/dj.png" },
+            { name: "Dominique", image: "https://flagcdn.com/w320/dm.png" },
+            { name: "Écosse", image: "https://flagcdn.com/w320/gb-sct.png" },
+            { name: "Égypte", image: "https://flagcdn.com/w320/eg.png" },
+            { name: "Émirats arabes unis", image: "https://flagcdn.com/w320/ae.png" },
+            { name: "Équateur", image: "https://flagcdn.com/w320/ec.png" },
+            { name: "Érythrée", image: "https://flagcdn.com/w320/er.png" },
+            { name: "Espagne", image: "https://flagcdn.com/w320/es.png" },
+            { name: "Estonie", image: "https://flagcdn.com/w320/ee.png" },
+            { name: "États-Unis", image: "https://flagcdn.com/w320/us.png" },
+            { name: "Éthiopie", image: "https://flagcdn.com/w320/et.png" },
+            { name: "Fidji", image: "https://flagcdn.com/w320/fj.png" },
+            { name: "Finlande", image: "https://flagcdn.com/w320/fi.png" },
+            { name: "France", image: "https://flagcdn.com/w320/fr.png" },
+            { name: "Gabon", image: "https://flagcdn.com/w320/ga.png" },
+            { name: "Gambie", image: "https://flagcdn.com/w320/gm.png" },
+            { name: "Géorgie", image: "https://flagcdn.com/w320/ge.png" },
+            { name: "Ghana", image: "https://flagcdn.com/w320/gh.png" },
+            { name: "Gibraltar", image: "https://flagcdn.com/w320/gi.png" },
+            { name: "Grèce", image: "https://flagcdn.com/w320/gr.png" },
+            { name: "Grenade", image: "https://flagcdn.com/w320/gd.png" },
+            { name: "Groenland", image: "https://flagcdn.com/w320/gl.png" },
+            { name: "Guatemala", image: "https://flagcdn.com/w320/gt.png" },
+            { name: "Guernesey", image: "https://flagcdn.com/w320/gg.png" },
+            { name: "Guinée", image: "https://flagcdn.com/w320/gn.png" },
+            { name: "Guinée équatoriale", image: "https://flagcdn.com/w320/gq.png" },
+            { name: "Guinée-Bissau", image: "https://flagcdn.com/w320/gw.png" },
+            { name: "Guyana", image: "https://flagcdn.com/w320/gy.png" },
+            { name: "Haïti", image: "https://flagcdn.com/w320/ht.png" },
+            { name: "Honduras", image: "https://flagcdn.com/w320/hn.png" },
+            { name: "Hong Kong", image: "https://flagcdn.com/w320/hk.png" },
+            { name: "Hongrie", image: "https://flagcdn.com/w320/hu.png" },
+            { name: "Île de Man", image: "https://flagcdn.com/w320/im.png" },
+            { name: "Maurice", image: "https://flagcdn.com/w320/mu.png" },
+            { name: "Île Norfolk", image: "https://flagcdn.com/w320/nf.png" },
+            { name: "Îles Caïmans", image: "https://flagcdn.com/w320/ky.png" },
+            { name: "Îles Cocos", image: "https://flagcdn.com/w320/cc.png" },
+            { name: "Îles Cook", image: "https://flagcdn.com/w320/ck.png" },
+            { name: "Cap-Vert", image: "https://flagcdn.com/w320/cv.png" },
+            { name: "Îles Féroé", image: "https://flagcdn.com/w320/fo.png" },
+            { name: "Îles Malouines", image: "https://flagcdn.com/w320/fk.png" },
+            { name: "Îles Mariannes du Nord", image: "https://flagcdn.com/w320/mp.png" },
+            { name: "Îles Marshall", image: "https://flagcdn.com/w320/mh.png" },
+            { name: "Îles Pitcairn", image: "https://flagcdn.com/w320/pn.png" },
+            { name: "Îles Salomon", image: "https://flagcdn.com/w320/sb.png" },
+            { name: "Îles Turques-et-Caïques", image: "https://flagcdn.com/w320/tc.png" },
+            { name: "Îles Vierges britanniques", image: "https://flagcdn.com/w320/vg.png" },
+            { name: "Îles Vierges des États-Unis", image: "https://flagcdn.com/w320/vi.png" },
+            { name: "Inde", image: "https://flagcdn.com/w320/in.png" },
+            { name: "Indonésie", image: "https://flagcdn.com/w320/id.png" },
+            { name: "Irak", image: "https://flagcdn.com/w320/iq.png" },
+            { name: "Iran", image: "https://flagcdn.com/w320/ir.png" },
+            { name: "Irlande", image: "https://flagcdn.com/w320/ie.png" },
+            { name: "Irlande du Nord", image: "https://flagcdn.com/w320/gb-nir.png" },
+            { name: "Islande", image: "https://flagcdn.com/w320/is.png" },
+            { name: "Israël", image: "https://flagcdn.com/w320/il.png" },
+            { name: "Italie", image: "https://flagcdn.com/w320/it.png" },
+            { name: "Jamaïque", image: "https://flagcdn.com/w320/jm.png" },
+            { name: "Japon", image: "https://flagcdn.com/w320/jp.png" },
+            { name: "Jersey", image: "https://flagcdn.com/w320/je.png" },
+            { name: "Jordanie", image: "https://flagcdn.com/w320/jo.png" },
+            { name: "Kazakhstan", image: "https://flagcdn.com/w320/kz.png" },
+            { name: "Kenya", image: "https://flagcdn.com/w320/ke.png" },
+            { name: "Kirghizistan", image: "https://flagcdn.com/w320/kg.png" },
+            { name: "Kiribati", image: "https://flagcdn.com/w320/ki.png" },
+            { name: "Kosovo", image: "https://flagcdn.com/w320/xk.png" },
+            { name: "Koweït", image: "https://flagcdn.com/w320/kw.png" },
+            { name: "Laos", image: "https://flagcdn.com/w320/la.png" },
+            { name: "Lesotho", image: "https://flagcdn.com/w320/ls.png" },
+            { name: "Lettonie", image: "https://flagcdn.com/w320/lv.png" },
+            { name: "Liban", image: "https://flagcdn.com/w320/lb.png" },
+            { name: "Liberia", image: "https://flagcdn.com/w320/lr.png" },
+            { name: "Libye", image: "https://flagcdn.com/w320/ly.png" },
+            { name: "Liechtenstein", image: "https://flagcdn.com/w320/li.png" },
+            { name: "Lituanie", image: "https://flagcdn.com/w320/lt.png" },
+            { name: "Luxembourg", image: "https://flagcdn.com/w320/lu.png" },
+            { name: "Macao", image: "https://flagcdn.com/w320/mo.png" },
+            { name: "Macédoine du Nord", image: "https://flagcdn.com/w320/mk.png" },
+            { name: "Madagascar", image: "https://flagcdn.com/w320/mg.png" },
+            { name: "Malaisie", image: "https://flagcdn.com/w320/my.png" },
+            { name: "Malawi", image: "https://flagcdn.com/w320/mw.png" },
+            { name: "Maldives", image: "https://flagcdn.com/w320/mv.png" },
+            { name: "Mali", image: "https://flagcdn.com/w320/ml.png" },
+            { name: "Malte", image: "https://flagcdn.com/w320/mt.png" },
+            { name: "Maroc", image: "https://flagcdn.com/w320/ma.png" },
+            { name: "Mauritanie", image: "https://flagcdn.com/w320/mr.png" },
+            { name: "Mexique", image: "https://flagcdn.com/w320/mx.png" },
+            { name: "Micronésie", image: "https://flagcdn.com/w320/fm.png" },
+            { name: "Moldavie", image: "https://flagcdn.com/w320/md.png" },
+            { name: "Monaco", image: "https://flagcdn.com/w320/mc.png" },
+            { name: "Mongolie", image: "https://flagcdn.com/w320/mn.png" },
+            { name: "Monténégro", image: "https://flagcdn.com/w320/me.png" },
+            { name: "Montserrat", image: "https://flagcdn.com/w320/ms.png" },
+            { name: "Mozambique", image: "https://flagcdn.com/w320/mz.png" },
+            { name: "Namibie", image: "https://flagcdn.com/w320/na.png" },
+            { name: "Nauru", image: "https://flagcdn.com/w320/nr.png" },
+            { name: "Népal", image: "https://flagcdn.com/w320/np.png" },
+            { name: "Nicaragua", image: "https://flagcdn.com/w320/ni.png" },
+            { name: "Niger", image: "https://flagcdn.com/w320/ne.png" },
+            { name: "Nigeria", image: "https://flagcdn.com/w320/ng.png" },
+            { name: "Niue", image: "https://flagcdn.com/w320/nu.png" },
+            { name: "Norvège", image: "https://flagcdn.com/w320/no.png" },
+            { name: "Nouvelle-Calédonie", image: "https://flagcdn.com/w320/nc.png" },
+            { name: "Nouvelle-Zélande", image: "https://flagcdn.com/w320/nz.png" },
+            { name: "Oman", image: "https://flagcdn.com/w320/om.png" },
+            { name: "Ouganda", image: "https://flagcdn.com/w320/ug.png" },
+            { name: "Ouzbékistan", image: "https://flagcdn.com/w320/uz.png" },
+            { name: "Pakistan", image: "https://flagcdn.com/w320/pk.png" },
+            { name: "Palaos", image: "https://flagcdn.com/w320/pw.png" },
+            { name: "Palestine", image: "https://flagcdn.com/w320/ps.png" },
+            { name: "Panama", image: "https://flagcdn.com/w320/pa.png" },
+            { name: "Papouasie-Nouvelle-Guinée", image: "https://flagcdn.com/w320/pg.png" },
+            { name: "Paraguay", image: "https://flagcdn.com/w320/py.png" },
+            { name: "Pays de Galles", image: "https://flagcdn.com/w320/gb-wls.png" },
+            { name: "Pays-Bas", image: "https://flagcdn.com/w320/nl.png" },
+            { name: "Pérou", image: "https://flagcdn.com/w320/pe.png" },
+            { name: "Philippines", image: "https://flagcdn.com/w320/ph.png" },
+            { name: "Pologne", image: "https://flagcdn.com/w320/pl.png" },
+            { name: "Porto Rico", image: "https://flagcdn.com/w320/pr.png" },
+            { name: "Portugal", image: "https://flagcdn.com/w320/pt.png" },
+            { name: "Qatar", image: "https://flagcdn.com/w320/qa.png" },
+            { name: "République centrafricaine", image: "https://flagcdn.com/w320/cf.png" },
+            { name: "République dominicaine", image: "https://flagcdn.com/w320/do.png" },
+            { name: "Roumanie", image: "https://flagcdn.com/w320/ro.png" },
+            { name: "Royaume-Uni", image: "https://flagcdn.com/w320/gb.png" },
+            { name: "Russie", image: "https://flagcdn.com/w320/ru.png" },
+            { name: "Rwanda", image: "https://flagcdn.com/w320/rw.png" },
+            { name: "Sahara Occidental", image: "https://flagcdn.com/w320/eh.png" },
+            { name: "Saint-Barthélemy", image: "https://flagcdn.com/w320/bl.png" },
+            { name: "Saint-Christophe-et-Niévès", image: "https://flagcdn.com/w320/kn.png" },
+            { name: "Saint-Marin", image: "https://flagcdn.com/w320/sm.png" },
+            { name: "Saint-Pierre-et-Miquelon", image: "https://flagcdn.com/w320/pm.png" },
+            { name: "Saint-Vincent-et-les-Grenadines", image: "https://flagcdn.com/w320/vc.png" },
+            { name: "Sainte-Hélène, Ascension et Tristan da Cunha", image: "https://flagcdn.com/w320/sh.png" },
+            { name: "Sainte-Lucie", image: "https://flagcdn.com/w320/lc.png" },
+            { name: "Salvador", image: "https://flagcdn.com/w320/sv.png" },
+            { name: "Samoa", image: "https://flagcdn.com/w320/ws.png" },
+            { name: "Samoa américaines", image: "https://flagcdn.com/w320/as.png" },
+            { name: "Sao Tomé-et-Principe", image: "https://flagcdn.com/w320/st.png" },
+            { name: "Sénégal", image: "https://flagcdn.com/w320/sn.png" },
+            { name: "Serbie", image: "https://flagcdn.com/w320/rs.png" },
+            { name: "Seychelles", image: "https://flagcdn.com/w320/sc.png" },
+            { name: "Sierra Leone", image: "https://flagcdn.com/w320/sl.png" },
+            { name: "Singapour", image: "https://flagcdn.com/w320/sg.png" },
+            { name: "Slovaquie", image: "https://flagcdn.com/w320/sk.png" },
+            { name: "Slovénie", image: "https://flagcdn.com/w320/si.png" },
+            { name: "Somalie", image: "https://flagcdn.com/w320/so.png" },
+            { name: "Soudan", image: "https://flagcdn.com/w320/sd.png" },
+            { name: "Soudan du Sud", image: "https://flagcdn.com/w320/ss.png" },
+            { name: "Sri Lanka", image: "https://flagcdn.com/w320/lk.png" },
+            { name: "Suède", image: "https://flagcdn.com/w320/se.png" },
+            { name: "Suisse", image: "https://flagcdn.com/w320/ch.png" },
+            { name: "Suriname", image: "https://flagcdn.com/w320/sr.png" },
+            { name: "Eswatini", image: "https://flagcdn.com/w320/sz.png" },
+            { name: "Syrie", image: "https://flagcdn.com/w320/sy.png" },
+            { name: "Tadjikistan", image: "https://flagcdn.com/w320/tj.png" },
+            { name: "Taïwan", image: "https://flagcdn.com/w320/tw.png" },
+            { name: "Tanzanie", image: "https://flagcdn.com/w320/tz.png" },
+            { name: "Tchad", image: "https://flagcdn.com/w320/td.png" },
+            { name: "Tchéquie", image: "https://flagcdn.com/w320/cz.png" },
+            { name: "Territoire britannique de l'océan Indien", image: "https://flagcdn.com/w320/io.png" },
+            { name: "Thaïlande", image: "https://flagcdn.com/w320/th.png" },
+            { name: "Timor oriental", image: "https://flagcdn.com/w320/tl.png" },
+            { name: "Togo", image: "https://flagcdn.com/w320/tg.png" },
+            { name: "Tokelau", image: "https://flagcdn.com/w320/tk.png" },
+            { name: "Tonga", image: "https://flagcdn.com/w320/to.png" },
+            { name: "Trinité-et-Tobago", image: "https://flagcdn.com/w320/tt.png" },
+            { name: "Tunisie", image: "https://flagcdn.com/w320/tn.png" },
+            { name: "Turkménistan", image: "https://flagcdn.com/w320/tm.png" },
+            { name: "Turquie", image: "https://flagcdn.com/w320/tr.png" },
+            { name: "Tuvalu", image: "https://flagcdn.com/w320/tv.png" },
+            { name: "Ukraine", image: "https://flagcdn.com/w320/ua.png" },
+            { name: "Uruguay", image: "https://flagcdn.com/w320/uy.png" },
+            { name: "Vanuatu", image: "https://flagcdn.com/w320/vu.png" },
+            { name: "Venezuela", image: "https://flagcdn.com/w320/ve.png" },
+            { name: "Viêt Nam", image: "https://flagcdn.com/w320/vn.png" },
+            { name: "Wallis-et-Futuna", image: "https://flagcdn.com/w320/wf.png" },
+            { name: "Yémen", image: "https://flagcdn.com/w320/ye.png" },
+            { name: "Zambie", image: "https://flagcdn.com/w320/zm.png" },
+            { name: "Zimbabwe", image: "https://flagcdn.com/w320/zw.png" }
+        ];
+
+        // Liste des drapeaux à retirer car ils utilisent le même drapeau que la Norvège
+        const duplicateFlags = [
+            "Île Bouvet",
+            "Svalbard et Jan Mayen",
+            "Îles Heard-et-MacDonald",
+            "Îles mineures éloignées des États-Unis",
+            "Terres australes et antarctiques françaises",
+            "Géorgie du Sud-et-les Îles Sandwich du Sud"
+        ];
+
+        // Filtrer les drapeaux (retirer les doublons et les drapeaux avec le même drapeau que la Norvège)
+        function filterFlags(flagsArray) {
+            const imageUrls = new Set();
+            const filteredFlags = [];
+            
+            for (const flag of flagsArray) {
+                // Ignorer les drapeaux qui utilisent le même drapeau que la Norvège
+                if (duplicateFlags.includes(flag.name)) {
+                    continue;
+                }
+                
+                // Vérifier les doublons d'image
+                if (!imageUrls.has(flag.image)) {
+                    imageUrls.add(flag.image);
+                    filteredFlags.push(flag);
+                }
+            }
+            
+            console.log(`Drapeaux filtrés : ${filteredFlags.length} (retiré ${flagsArray.length - filteredFlags.length} doublons)`);
+            return filteredFlags;
+        }
+
+        // Liste finale des drapeaux uniques
+        const flags = filterFlags(allFlags);
+
+        // Fonction de normalisation améliorée pour les réponses
+        function normalizeAnswer(answer) {
+            return answer
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "") // Supprimer les accents
+                .replace(/[-\s]/g, "") // Supprimer les tirets ET les espaces
+                .replace(/[^a-z0-9]/g, ""); // Supprimer tout autre caractère spécial
+        }
+
+        // État du jeu
+        let gameState = {
+            currentFlagIndex: -1,
+            answeredFlags: [],
+            remainingFlags: [...flags],
+            score: 0,
+            incorrectCount: 0,
+            totalFlags: flags.length,
+            currentFlag: null,
+            answerRevealed: false,
+            usedFlags: new Set(), // Pour suivre les drapeaux déjà présentés
+            answerSubmitted: false // Nouvelle variable pour gérer l'état de la réponse
+        };
+
+        // Éléments DOM
+        const flagImage = document.getElementById('flag-image');
+        const flagPlaceholder = document.getElementById('flag-placeholder');
+        const countryInput = document.getElementById('country-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const showAnswerBtn = document.getElementById('show-answer-btn');
+        const feedback = document.getElementById('feedback');
+        const feedbackText = document.getElementById('feedback-text');
+        const correctAnswerText = document.getElementById('correct-answer-text');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreElement = document.getElementById('score');
+        const incorrectCountElement = document.getElementById('incorrect-count');
+        const remainingElement = document.getElementById('remaining');
+        const accuracyElement = document.getElementById('accuracy');
+        const gameContent = document.getElementById('game-content');
+        const completedMessage = document.getElementById('completed-message');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalAccuracyElement = document.getElementById('final-accuracy');
+        const finalMessageElement = document.getElementById('final-message');
+        const restartBtn = document.getElementById('restart-btn');
+        const totalFlagsElement = document.getElementById('total-flags');
+        const finalTotalElement = document.getElementById('final-total');
+        const themeToggle = document.getElementById('theme-toggle');
+        const remainingFlagsText = document.getElementById('remaining-flags-text');
+
+        // Mode sombre/clair
+        function initTheme() {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Mode clair';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i> Mode sombre';
+            }
+        }
+
+        function toggleTheme() {
+            const isDarkMode = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            if (isDarkMode) {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> Mode clair';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i> Mode sombre';
+            }
+        }
+
+        // Initialisation du jeu
+        function initGame() {
+            // Mettre à jour le compteur de drapeaux totaux
+            totalFlagsElement.textContent = `${flags.length} drapeaux au total`;
+            finalTotalElement.textContent = flags.length;
+            
+            // Réinitialiser l'état du jeu
+            gameState = {
+                currentFlagIndex: -1,
+                answeredFlags: [],
+                remainingFlags: [...flags],
+                score: 0,
+                incorrectCount: 0,
+                totalFlags: flags.length,
+                currentFlag: null,
+                answerRevealed: false,
+                usedFlags: new Set(),
+                answerSubmitted: false
+            };
+
+            // Réinitialiser l'interface
+            countryInput.value = '';
+            countryInput.classList.remove('correct', 'incorrect');
+            feedback.className = 'feedback';
+            feedbackText.textContent = 'Entrez votre réponse et cliquez sur "Vérifier"';
+            correctAnswerText.textContent = '';
+            nextBtn.classList.add('hidden');
+            countryInput.disabled = false;
+            submitBtn.classList.remove('hidden');
+            showAnswerBtn.classList.remove('hidden');
+            gameContent.classList.remove('hidden');
+            completedMessage.classList.add('hidden');
+            
+            // Mettre à jour le texte des drapeaux restants
+            updateRemainingFlagsText();
+
+            // Mettre à jour les statistiques
+            updateStats();
+            
+            // Sélectionner le premier drapeau
+            selectRandomFlag();
+        }
+
+        // Sélectionner un drapeau aléatoire parmi ceux restants
+        function selectRandomFlag() {
+            if (gameState.remainingFlags.length === 0) {
+                endGame();
+                return;
+            }
+
+            // Réinitialiser l'état de la réponse
+            gameState.answerRevealed = false;
+            gameState.answerSubmitted = false;
+            
+            // Sélectionner un drapeau aléatoire parmi ceux qui n'ont pas encore été présentés
+            const availableFlags = gameState.remainingFlags.filter(flag => !gameState.usedFlags.has(flag.name));
+            
+            if (availableFlags.length === 0) {
+                // Tous les drapeaux ont été présentés
+                endGame();
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * availableFlags.length);
+            gameState.currentFlag = availableFlags[randomIndex];
+            
+            // Trouver l'index dans le tableau original remainingFlags
+            gameState.currentFlagIndex = gameState.remainingFlags.findIndex(flag => flag.name === gameState.currentFlag.name);
+            
+            // Marquer le drapeau comme présenté
+            gameState.usedFlags.add(gameState.currentFlag.name);
+            
+            // Afficher le drapeau
+            displayFlag(gameState.currentFlag);
+            
+            // Réinitialiser l'interface pour la nouvelle question
+            countryInput.value = '';
+            countryInput.classList.remove('correct', 'incorrect');
+            countryInput.disabled = false;
+            countryInput.focus();
+            feedback.className = 'feedback';
+            feedbackText.textContent = 'Entrez votre réponse et cliquez sur "Vérifier"';
+            correctAnswerText.textContent = '';
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+            showAnswerBtn.classList.remove('hidden');
+            
+            // Mettre à jour la progression
+            updateProgress();
+            
+            // Mettre à jour le texte des drapeaux restants
+            updateRemainingFlagsText();
+        }
+
+        // Mettre à jour le texte des drapeaux restants
+        function updateRemainingFlagsText() {
+            const remainingCount = gameState.totalFlags - gameState.usedFlags.size;
+            remainingFlagsText.textContent = `Drapeaux restants dans cette session : ${remainingCount}`;
+        }
+
+        // Afficher le drapeau
+        function displayFlag(flag) {
+            flagPlaceholder.classList.add('hidden');
+            flagImage.src = flag.image;
+            flagImage.alt = `Drapeau de ${flag.name}`;
+            flagImage.onload = function() {
+                flagImage.classList.remove('hidden');
+            };
+            flagImage.onerror = function() {
+                flagImage.classList.add('hidden');
+                flagPlaceholder.classList.remove('hidden');
+                flagPlaceholder.innerHTML = `<i class="fas fa-flag fa-4x" style="color: #ccc; margin-bottom: 15px;"></i>
+                                           <p>Drapeau de ${flag.name}</p>
+                                           <p style="font-size: 0.9rem; color: #888;">(Image non disponible)</p>`;
+            };
+        }
+
+        // Vérifier la réponse
+        function checkAnswer() {
+            const userAnswer = countryInput.value.trim();
+            const correctAnswer = gameState.currentFlag.name;
+            
+            if (!userAnswer) {
+                feedback.className = 'feedback feedback-info';
+                feedbackText.textContent = 'Veuillez entrer une réponse';
+                return;
+            }
+            
+            // Normaliser les réponses (supprime accents, tirets, espaces)
+            const normalizedUserAnswer = normalizeAnswer(userAnswer);
+            const normalizedCorrectAnswer = normalizeAnswer(correctAnswer);
+            
+            let isCorrect = false;
+            
+            // Vérification exacte avec la nouvelle normalisation
+            if (normalizedUserAnswer === normalizedCorrectAnswer) {
+                isCorrect = true;
+            } 
+            // Vérification partielle (pour les réponses avec des variantes)
+            else if (normalizedCorrectAnswer.includes(normalizedUserAnswer) && normalizedUserAnswer.length >= 3) {
+                // Si la réponse de l'utilisateur est une partie substantielle de la bonne réponse
+                isCorrect = true;
+            }
+            // Vérifier les variantes courantes
+            else if (checkCommonVariants(normalizedUserAnswer, normalizedCorrectAnswer, correctAnswer)) {
+                isCorrect = true;
+            }
+            
+            // Traiter la réponse
+            processAnswer(isCorrect, userAnswer, correctAnswer);
+        }
+
+        // Vérifier les variantes courantes de noms de pays
+        function checkCommonVariants(userAnswer, normalizedCorrectAnswer, originalCorrectAnswer) {
+            // Variantes courantes pour les noms de pays
+            const commonVariants = {
+                "republiquedemocratiqueducongo": ["rdc", "congo", "zaire", "congodemocratique", "congokinshasa"],
+                "coreedunord": ["coreenord", "nordcoree", "rpdc", "rpdcoree"],
+                "coreedusud": ["coreesud", "sudcoree", "coree"],
+                "etatsunis": ["usa", "amerique", "us", "states", "etatsunisamerique"],
+                "royaumeuni": ["grandebretagne", "angleterre", "uk", "gb", "bretagne"],
+                "republiqueducongo": ["congobrazzaville", "congob"],
+                "republiquecentrafricaine": ["centrafrique", "rca"],
+                "republiquedominicaine": ["dominique"],
+                "guineebissau": ["guinebissau"],
+                "guineeequatoriale": ["guineequatoriale"],
+                "bosnieherzegovine": ["bosnie"],
+                "triniteettobago": ["trinite", "tobago"],
+                "antiguaetbarbuda": ["antigua", "barbuda"],
+                "saintvincentetlesgrenadines": ["saintvincent", "grenadines"],
+                "sainteheleneascensionettristandacunha": ["saintehelene", "ascension", "tristandacunha"],
+                "ilesviergesbritanniques": ["viergesbritanniques", "britishvirginislands"],
+                "ilesviergesdesetatsunis": ["viergesamericaines", "usvirginislands"],
+                "emiratsarabesunis": ["eau", "uae", "emirats"],
+                "paysbascaribeens": ["paysbascaraibes", "antillesneerlandaises"],
+                "capvert": ["caboverde"],
+                "etatsfederesdemicronesie": ["micronesie"],
+                "ilesmariannesdunord": ["mariannesdunord"],
+                "ilesmarshalls": ["marshalls"],
+                "saotomeetprincipe": ["saotome"],
+                "saintchristopheetnieves": ["saintkitts", "saintkittsetnevis"],
+                "ilescaimans": ["caimans", "cayman"],
+                "ilescocos": ["cocos", "keeling"],
+                "ilesferoe": ["feroe"],
+                "ilesmalouines": ["malouines", "falkland"],
+                "ilespitcairn": ["pitcairn"],
+                "ilessalomon": ["salomon"],
+                "ilesturquesetcaiques": ["turquesetcaiques"],
+                "saintpierreetmiquelon": ["saintpierre"],
+                "terresaustralesetantarctiquesfrancaises": ["taaf"],
+                "territoirebritanniquedeloceanindien": ["biot"],
+                "ilesheardetmacdonald": ["heard", "macdonald"],
+                "svalbardetjanmayen": ["svalbard", "janmayen"],
+                "georgiedusudetlessandwichdusud": ["georgiedusud", "sandwichdusud"]
+            };
+            
+            // Vérifier si la réponse utilisateur correspond à une variante connue
+            for (const [correct, variants] of Object.entries(commonVariants)) {
+                if (normalizedCorrectAnswer.includes(correct) && variants.includes(userAnswer)) {
+                    return true;
+                }
+            }
+            
+            // Vérifications spéciales pour les noms avec/sans tirets
+            const withoutHyphens = originalCorrectAnswer.toLowerCase().replace(/[-\s]/g, "");
+            if (userAnswer === withoutHyphens) {
+                return true;
+            }
+            
+            return false;
+        }
+
+        // Traiter la réponse (correcte ou incorrecte)
+        function processAnswer(isCorrect, userAnswer, correctAnswer) {
+            // Marquer que la réponse a été soumise
+            gameState.answerSubmitted = true;
+            
+            // Empêcher de répondre plusieurs fois à la même question
+            countryInput.disabled = true;
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            showAnswerBtn.classList.add('hidden');
+            
+            // Retirer le drapeau de la liste des drapeaux restants (quel que soit le résultat)
+            if (gameState.currentFlagIndex !== -1) {
+                gameState.remainingFlags.splice(gameState.currentFlagIndex, 1);
+            }
+            
+            // Mettre à jour l'état du jeu
+            if (isCorrect) {
+                gameState.score++;
+                gameState.answeredFlags.push({
+                    flag: gameState.currentFlag,
+                    correct: true,
+                    userAnswer: userAnswer
+                });
+                
+                // Mettre à jour l'interface pour une réponse correcte
+                countryInput.classList.add('correct');
+                feedback.className = 'feedback correct';
+                feedbackText.innerHTML = `<i class="fas fa-check-circle"></i> Correct !`;
+                correctAnswerText.textContent = `${correctAnswer}`;
+            } else {
+                gameState.incorrectCount++;
+                gameState.answeredFlags.push({
+                    flag: gameState.currentFlag,
+                    correct: false,
+                    userAnswer: userAnswer
+                });
+                
+                // Mettre à jour l'interface pour une réponse incorrecte
+                countryInput.classList.add('incorrect');
+                feedback.className = 'feedback incorrect';
+                feedbackText.innerHTML = `<i class="fas fa-times-circle"></i> Incorrect`;
+                correctAnswerText.textContent = `La bonne réponse est : ${correctAnswer}`;
+            }
+            
+            // Mettre à jour les statistiques
+            updateStats();
+        }
+
+        // Afficher la réponse
+        function showAnswer() {
+            if (gameState.answerRevealed) return;
+            
+            gameState.answerRevealed = true;
+            gameState.incorrectCount++;
+            gameState.answerSubmitted = true;
+            
+            // Retirer le drapeau de la liste des drapeaux restants
+            if (gameState.currentFlagIndex !== -1) {
+                gameState.remainingFlags.splice(gameState.currentFlagIndex, 1);
+            }
+            
+            // Mettre à jour l'interface
+            countryInput.disabled = true;
+            submitBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+            showAnswerBtn.classList.add('hidden');
+            
+            feedback.className = 'feedback incorrect';
+            feedbackText.innerHTML = `<i class="fas fa-eye"></i> Réponse révélée`;
+            correctAnswerText.textContent = `${gameState.currentFlag.name}`;
+            
+            // Ajouter aux drapeaux répondus
+            gameState.answeredFlags.push({
+                flag: gameState.currentFlag,
+                correct: false,
+                userAnswer: null,
+                revealed: true
+            });
+            
+            // Mettre à jour les statistiques
+            updateStats();
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            const totalAnswered = gameState.answeredFlags.length;
+            const remainingCount = gameState.totalFlags - totalAnswered;
+            const accuracy = totalAnswered > 0 ? Math.round((gameState.score / totalAnswered) * 100) : 0;
+            
+            // Mettre à jour les éléments d'affichage
+            scoreElement.textContent = gameState.score;
+            incorrectCountElement.textContent = gameState.incorrectCount;
+            remainingElement.textContent = remainingCount;
+            accuracyElement.textContent = `${accuracy}%`;
+            
+            // Mettre à jour la couleur de la précision
+            accuracyElement.className = 'stat-value';
+            if (accuracy >= 80) {
+                accuracyElement.classList.add('high-accuracy');
+            } else if (accuracy >= 50) {
+                accuracyElement.classList.add('medium-accuracy');
+            } else if (totalAnswered > 0) {
+                accuracyElement.classList.add('low-accuracy');
+            }
+            
+            // Mettre à jour la barre de progression
+            const progressPercent = (totalAnswered / gameState.totalFlags) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+        }
+
+        // Mettre à jour le texte de progression
+        function updateProgress() {
+            const currentNumber = gameState.answeredFlags.length + 1;
+            progressText.textContent = `Drapeau ${currentNumber}/${gameState.totalFlags}`;
+        }
+
+        // Terminer le jeu
+        function endGame() {
+            gameContent.classList.add('hidden');
+            completedMessage.classList.remove('hidden');
+            
+            const accuracy = gameState.totalFlags > 0 ? Math.round((gameState.score / gameState.totalFlags) * 100) : 0;
+            
+            finalScoreElement.textContent = gameState.score;
+            finalAccuracyElement.textContent = `${accuracy}%`;
+            
+            // Message personnalisé selon le score
+            let message = '';
+            if (accuracy >= 90) {
+                message = 'Expert en drapeaux ! Vous connaissez presque tous les drapeaux du monde.';
+            } else if (accuracy >= 70) {
+                message = 'Très bon score ! Vous avez une excellente connaissance des drapeaux.';
+            } else if (accuracy >= 50) {
+                message = 'Bon score ! Vous connaissez bien les drapeaux les plus courants.';
+            } else if (accuracy >= 30) {
+                message = 'Score correct. Continuez à apprendre pour améliorer vos connaissances.';
+            } else {
+                message = 'Vous avez découvert beaucoup de nouveaux drapeaux. Continuez à pratiquer !';
+            }
+            
+            finalMessageElement.textContent = message;
+        }
+
+        // Gérer la touche Entrée de manière intelligente
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                // Empêcher le comportement par défaut
+                e.preventDefault();
+                
+                // Si le bouton "Vérifier" est visible et que la réponse n'a pas encore été soumise
+                if (!submitBtn.classList.contains('hidden') && !gameState.answerSubmitted) {
+                    checkAnswer();
+                }
+                // Si le bouton "Suivant" est visible et que la réponse a déjà été soumise
+                else if (!nextBtn.classList.contains('hidden') && gameState.answerSubmitted) {
+                    selectRandomFlag();
+                }
+            }
+        }
+
+        // Écouteurs d'événements
+        submitBtn.addEventListener('click', function() {
+            if (!gameState.answerSubmitted) {
+                checkAnswer();
+            }
+        });
+        
+        nextBtn.addEventListener('click', function() {
+            selectRandomFlag();
+        });
+        
+        showAnswerBtn.addEventListener('click', showAnswer);
+        
+        restartBtn.addEventListener('click', initGame);
+        
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // Gestion de la touche Entrée uniquement sur l'input
+        countryInput.addEventListener('keypress', handleKeyPress);
+        
+        // Retirer l'écouteur d'événements sur le document pour éviter les conflits
+        // Nous gardons seulement l'écouteur sur l'input
+
+        // Initialiser le thème
+        initTheme();
+        
+        // Démarrer le jeu
+        initGame();
+    </script>
+</body>
+</html>
